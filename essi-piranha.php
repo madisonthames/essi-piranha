@@ -80,7 +80,7 @@ function getYearOptions($manufacturer = ''){
 		$propTable = $wpdb->prefix . 'piranha_propfinder';
         //pre-populate first drop down box
 		$qry = "SELECT distinct year FROM `" . $propTable . "` 
-				where manufacturer = '" . $manufacturer . "' order by year";
+				where manufacturer = '" . $manufacturer . "' order by year desc";
 		$results = $wpdb->get_results($qry);
 		//$content = "<option value=''>--Select Year--</option>";
 		$content = Array();
@@ -97,11 +97,12 @@ function getHorsepowerOptions($manufacturer = '', $year = ''){
 		$propTable = $wpdb->prefix . 'piranha_propfinder';
         //pre-populate first drop down box
 		$qry = "SELECT distinct hp FROM `" . $propTable . "` 
-				where manufacturer = '" . $manufacturer . "' and year = '" . $year . "' order by hp";
+				where manufacturer = '" . $manufacturer . "' and year = '" . $year . "' order by cast(hp as unsigned)";
 		$results = $wpdb->get_results($qry);
-		$content = "<option value=''>--Select Horsepower--</option>";
+		$content = Array();
 		foreach($results as $row){
-			$content .= "<option value='" . $row->hp . "'>" . $row->hp . "</option>"; 
+			//$content .= "<option value='" . $row->year . "'>" . $row->year . "</option>"; 
+			$content[] = $row->hp;
 		}
         return $content;		
 }
@@ -115,14 +116,45 @@ function getBladeOptions($manufacturer = '', $year = '', $horsepower = ''){
 				where manufacturer = '" . $manufacturer . "' and year = '" . $year . "' and hp = '" . $horsepower . "'
 				order by blades";
 		$results = $wpdb->get_results($qry);
-		$content = "<option value=''>--Select Blades--</option>";
+		$content = Array();
 		foreach($results as $row){
-			$content .= "<option value='" . $row->blades . "'>" . $row->blades . "</option>"; 
+			//$content .= "<option value='" . $row->year . "'>" . $row->year . "</option>"; 
+			$content[] = $row->blades;
 		}
         return $content;		
 }
 
+//function to get the content from the CPT for this blade group (got to get the blade group first
+function getBladeGroup($manufacturer='', $year='', $hp='', $blades=''){
+	global $wpdb;
+	$propTable = $wpdb->prefix . 'piranha_propfinder';
+	//pre-populate first drop down box
+	$qry = "SELECT bladegroup FROM `" . $propTable . "` 
+			where manufacturer = '" . $manufacturer . "' and year = '" . $year . "' and hp = '" . $hp . "'
+			and blades = '" . $blades . "' limit 0,1";
+	$results = $wpdb->get_results($qry);
+	$bladegroup = '';
+	foreach($results as $row){
+		$bladegroup = $row->bladegroup;
+	}
+	if($bladegroup==''){
+		$content = "<h3>A blade group was not round for this model. Please contact the site admin</h3>";
+		$content = "<br />" . $qry;
+	}else{
+		//$post = get_posts( array( 'name' => 'a3', 'post_type' => 'bladechart' ) );
+		$post = get_page_by_title($bladegroup, 'OBJECT', 'bladechart');
+		if ( $post )
+		{
+			$content = $post->post_content;
+		}else{
+			$content = "<h3>This chart was not found for Blade Group " . $bladegroup . " Please contact the site admin</h3>";
+		}
+	}
+	return $content;	
+}
+
 include( 'propfinder_page.php' );
+
 
 
 function piranha_propfinder_import(){

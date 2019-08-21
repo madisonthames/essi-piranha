@@ -11,7 +11,7 @@ function propfinder_shortcodes_init()
 		$results = $wpdb->get_results($qry);
 		$content = '<div class="prop-finder-container">';
 		$content .= '<select id="select-manufacturer" class="prop-finder-dropdown" value="manufacturer">';
-		$content .= "<option value=''>--Select Manufacturer--</option>";
+		$content .= "<option value=''>Select Manufacturer</option>";
 		foreach($results as $row){
 			$content .= "<option value='" . $row->manufacturer . "'>" . $row->manufacturer . "</option>"; 
 		}
@@ -19,8 +19,18 @@ function propfinder_shortcodes_init()
         $content .= '<select disabled id="select-year" class="prop-finder-year-dropdown">';
 		$content .= '<option>Select Year</option>';
         $content .= '</select>';
-        $content .= '</div>';
 		
+        $content .= '<select disabled id="select-horsepower" class="prop-finder-horsepower-dropdown">';
+		$content .= '<option>Select Horsepower</option>';
+		$content .= '</select>';
+		
+		$content .= '<select disabled id="select-blades" class="prop-finder-blades-dropdown">';
+		$content .= '<option>Select Blades</option>';
+		$content .= '</select>';
+		
+        $content .= '</div>';
+		$content .= '<div class="prop-finder-results-box">';
+		$content .= '</div>';
         // always return
         return $content;
     }
